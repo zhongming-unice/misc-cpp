@@ -40,8 +40,7 @@ vector<int> preorderTraversal_recursive(TreeNode *root)
 
 int main()
 {
-  vector<int> nums{1, 0, 2, 3};
-  auto root = initTreeNode(nums);
+  auto root = initTreeNode({1, 2, 3, 0, 0, 4, 5});
   auto res = preorderTraversal_iterative(root);
   for (const auto &n : res)
     std::cout << n << " ";

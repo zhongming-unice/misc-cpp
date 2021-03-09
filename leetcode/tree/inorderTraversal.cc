@@ -86,8 +86,7 @@ vector<int> inorderTraversal_morris(TreeNode* root)
 
 int main()
 {
-  vector<int> nums{1, 0, 2, 3};
-  auto root = initTreeNode(nums);
+  auto root = initTreeNode({1, 2, 3, 0, 0, 4, 5});
   auto res = inorderTraversal_iterative(root);
   for (const auto &n : res)
     std::cout << n << " ";

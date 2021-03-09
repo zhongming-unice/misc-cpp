@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   while (fgets(sendBuffer, sizeof(sendBuffer), stdin) != NULL)
     {
       write(sock, sendBuffer, strlen(sendBuffer));
-      read(sock, recvBuffer, strlen(recvBuffer));
+      read(sock, recvBuffer, sizeof(recvBuffer));
 
       fputs(recvBuffer, stdout);
       memset(sendBuffer, 0, sizeof(sendBuffer));

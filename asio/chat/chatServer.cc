@@ -1,10 +1,11 @@
-#include <cstdlib>
 #include <deque>
 #include <iostream>
 #include <list>
 #include <memory>
 #include <set>
 #include <utility>
+#include <vector>
+#include <cstdlib>
 #include <boost/asio.hpp>
 #include "chatMessage.h"
 
@@ -30,29 +31,45 @@ using chat_participant_ptr = std::shared_ptr<chat_participant>;
 class chat_room
 {
 public:
+  chat_room(boost::asio::io_context &io_context)
+    : strand_(io_context)
+  {
+    
+  }
+  
   void join(chat_participant_ptr participant)
   {
-    participants_.insert(participant);
-    for (const auto &msg : recent_msgs_)
-      participant->deliver(msg);
+    strand_.post([this, participant]()
+    {
+      participants_.insert(participant);
+      for (const auto &msg : recent_msgs_)
+	participant->deliver(msg);
+    });
   }
 
   void leave(chat_participant_ptr participant)
   {
-    participants_.erase(participant);
+    strand_.post([this, participant]()
+    {
+      participants_.erase(participant);
+    });
   }
 
   void deliver(const chat_message &msg)
   {
-    recent_msgs_.push_back(msg);
-    while (recent_msgs_.size() > max_recent_msgs)
-      recent_msgs_.pop_front();
+    strand_.post([this, &msg]()
+    {
+      recent_msgs_.push_back(msg);
+      while (recent_msgs_.size() > max_recent_msgs)
+	recent_msgs_.pop_front();
 
-    for (const auto &participant : participants_)
-      participant->deliver(msg);
+      for (const auto &participant : participants_)
+	participant->deliver(msg);  
+    });
   }
 
 private:
+  boost::asio::io_context::strand strand_;
   std::set<chat_participant_ptr> participants_;
   enum { max_recent_msgs = 100 };
   chat_message_queue recent_msgs_;
@@ -128,7 +145,7 @@ private:
 	room_.leave(shared_from_this());
     });
   }
-
+  // boost::asio::io_context::strand strand_;
   tcp::socket socket_;
   chat_room &room_;
   chat_message read_msg_;
@@ -141,7 +158,7 @@ class chat_server
 {
 public:
   chat_server(boost::asio::io_context &io_context, const tcp::endpoint &endpoint)
-    : acceptor_(io_context, endpoint)
+    : acceptor_(io_context, endpoint), room_(io_context)
   {
     do_accept();
   }
@@ -166,6 +183,7 @@ private:
 int main(int argc, char *argv[])
 {
   try {
+    // GOOGLE_PROTOBUF_VERIFY_VERSION;
     if (argc < 2)
       {
 	std::cerr << "Usage: chat_server <port> [<port> ...]" << std::endl;
@@ -178,10 +196,21 @@ int main(int argc, char *argv[])
 	tcp::endpoint endpoint(tcp::v4(), std::atoi(argv[i]));
 	servers.emplace_back(io_context, endpoint);
       }
+
+    std::vector<std::thread> threadGroup;
+    for (int i = 0; i < 5; ++i)
+      {
+	threadGroup.emplace_back([&io_context](){ io_context.run(); });
+      }
     io_context.run();
+
+    for (auto &t : threadGroup)
+      t.join();
+    
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
   }
 
+  // google::protobuf::ShutdownProtobufLibrary();
   return 0;
 }

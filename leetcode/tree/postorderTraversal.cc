@@ -31,8 +31,8 @@ vector<int> postorderTraversal_iterative(TreeNode *root)
       TreeNode *node = stk.top();
       dq.push_front(node->val);
       stk.pop();
-      if (node->right) stk.push(node->right);
       if (node->left) stk.push(node->left);
+      if (node->right) stk.push(node->right);
     }
   
   // std::reverse(nodes.begin(), nodes.end());
@@ -42,8 +42,7 @@ vector<int> postorderTraversal_iterative(TreeNode *root)
 
 int main()
 {
-  vector<int> nums{1, 0, 2, 3};
-  auto root = initTreeNode(nums);
+  auto root = initTreeNode({1, 2, 3, 0, 0, 4, 5});  
   auto res = postorderTraversal_recursive(root);
   for (const auto &n : res)
     std::cout << n << " ";

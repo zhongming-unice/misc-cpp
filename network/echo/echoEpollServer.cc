@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 	      event.data.fd = connfd;
 	      event.events = EPOLLIN;
 	      epoll_ctl(epollfd, EPOLL_CTL_ADD, connfd, &event);
-	      std::cout << "ip = " << inet_ntoa(peerAddr.sin_addr)
+	      std::cout << "ip = " << inet_ntop(peerAddr.sin_addr)
 			<< "port = " << ntohs(peerAddr.sin_port) << std::endl;
 	      
 	    }

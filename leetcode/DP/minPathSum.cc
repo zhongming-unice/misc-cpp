@@ -26,6 +26,6 @@ int main(int argc, char *argv[])
 			     {1, 5, 1},
 			     {4, 2, 1} };
   
-  std::cout << minPathSum(grid) <<std::endl;
+  std::cout << minPathSum(grid) << std::endl;
   return 0;
 }

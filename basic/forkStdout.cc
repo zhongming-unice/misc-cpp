@@ -4,10 +4,10 @@
 #include <unistd.h>
 #include <iostream>
 /*
- * write: print 6 - (6 = 2 ^ 3 - 2)
- * printf: print 8 - 
- * std::cout: print 8 -
- * printf/std::cout + fflush/std::flush: print 6 -
+ * write: print 6 : (6 = 2 ^ 3 - 2)
+ * printf: print 8  
+ * std::cout: print 8 
+ * printf/std::cout + fflush/std::flush: print 6 
  */
 int main(void)
 {

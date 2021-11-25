@@ -18,6 +18,7 @@ public:
 private:
   void do_read()
   {
+    printf("%s\n", socket_.remote_endpoint(ec).address().to_string().c_str());
     auto self(shared_from_this());
     // async_read_some(asio::error_code, std::size_t)>::return_type
     // async_read_some(const MutableBufferSequence &buffers,

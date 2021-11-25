@@ -12,14 +12,15 @@
 int main(void)
 {
    int i;
-   for(i = 0; i < 2; i++){
-      auto pid = fork();
-      // write(STDIN_FILENO, "-", 1);
-      // printf("-");
-      // fflush(stdout);
-      std::cout << "-" << pid;
-      std::cout << std::flush;
-   }
+   for (i = 0; i < 2; i++)
+     {
+       auto pid = fork();
+       // write(STDIN_FILENO, "#", 1);
+       // printf("-");
+       // fflush(stdout);
+       std::cout << "#" << pid;
+       // std::cout << std::flush;
+     }
 
    wait(NULL);
    wait(NULL);

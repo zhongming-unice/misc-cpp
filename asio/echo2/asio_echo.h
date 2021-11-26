@@ -26,29 +26,6 @@ struct Result {
 };
 
 
-// template<class T>
-// struct ReturnObject {
-//   struct promise_type {
-//     ReturnObject get_return_object() {
-//       return { .handle_ = std::coroutine_handle<promise_type>::from_promise(*this) };
-//     }
-//     std::suspend_never initial_suspend() { return {}; }
-//     std::suspend_always final_suspend() noexcept { return {}; }
-//     void unhandled_exception() { exception_ = std::current_exception(); }
-//     template<std::convertible_to<T> From>
-//     std::suspend_always yield_value(From &&from) {
-//       value_ = std::forward<From>(from);
-//       return {};
-//     }
-//     void return_void() {}
-    
-//     T value_;
-//     std::exception_ptr exception_;
-//   };
-
-//   std::coroutine_handle<promise_type> handle_;
-// };
-
 struct ReturnObject {
   struct promise_type {
     ReturnObject get_return_object() {
@@ -65,6 +42,31 @@ struct ReturnObject {
 
   std::coroutine_handle<promise_type> handle_;
 };
+
+
+template<class T>
+struct ReturnObjectWithValue {
+  struct promise_type {
+    ReturnObjectWithValue get_return_object() {
+      return { .handle_ = std::coroutine_handle<promise_type>::from_promise(*this) };
+    }
+    std::suspend_never initial_suspend() { return {}; }
+    std::suspend_always final_suspend() noexcept { return {}; }
+    void unhandled_exception() { exception_ = std::current_exception(); }
+    template<std::convertible_to<T> From>
+    std::suspend_always yield_value(From &&from) {
+      value_ = std::forward<From>(from);
+      return {};
+    }
+    void return_void() {}
+    
+    T value_;
+    std::exception_ptr exception_;
+  };
+
+  std::coroutine_handle<promise_type> handle_;
+};
+
 
 struct AcceptAwaiter {
   AcceptAwaiter(asio::ip::tcp::acceptor &acceptor)
@@ -86,6 +88,7 @@ struct AcceptAwaiter {
   Result<asio::ip::tcp::socket> result_;
 };
 
+
 struct IOAwaiter {
   bool await_ready() const { return false; }
   Result<std::size_t> await_resume() { return std::move(result_); }
@@ -103,6 +106,7 @@ struct IOAwaiter {
   Result<std::size_t> result_;
 };
 
+
 struct ReadAwaiter : IOAwaiter {
   ReadAwaiter(asio::ip::tcp::socket &socket, asio::mutable_buffer buffer)
     : socket_(socket), buffer_(buffer) {}
@@ -112,6 +116,7 @@ struct ReadAwaiter : IOAwaiter {
   asio::ip::tcp::socket &socket_;
   asio::mutable_buffer buffer_;
 };
+
 
 struct WriteAwaiter : IOAwaiter {
   WriteAwaiter(asio::ip::tcp::socket &socket, asio::const_buffer buffer)
